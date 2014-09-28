@@ -133,6 +133,12 @@ class BST<AnyType extends Comparable<? super AnyType>> {
 		else
 			printTree(root);
 	}
+	
+	private void splay(AnyType x , TreeNode<AnyType> t) {
+		if (t == null) 
+		{};
+		
+	}
 
 	/**
 	 * Internal method to insert into a subtree.
