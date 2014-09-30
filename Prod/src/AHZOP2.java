@@ -1,40 +1,8 @@
 import java.util.Scanner;
-// BST class
-//
-// CONSTRUCTION: with no initializer
-//
-// ******************PUBLIC OPERATIONS*********************
-// void insert( x )       --> Insert x
-// void remove( x )       --> Remove x
-// boolean contains( x )  --> Return true if x is present
-// Comparable findMin( )  --> Return smallest item
-// Comparable findMax( )  --> Return largest item
-// boolean isEmpty( )     --> Return true if empty; else false
-// void makeEmpty( )      --> Remove all items
-// void printTree( )      --> Print tree in sorted order
-// ******************ERRORS********************************
-// Throws UnderflowException as appropriate
+import java.util.Queue;
+import java.util.Random;
 
-/**
- * Implements an unbalanced binary search tree.
- * Note that all "matching" is based on the compareTo method.
- * @author Mark Allen Weiss
- */
-/**
- * Exception class for access in empty containers such as stacks, queues, and
- * priority queues.
- *
- * @author Mark Allen Weiss
- * @author Albert J. Wong
- *
- *         Modified by Albert J. Wong October 2003 - Made this into a runtime
- *         exception. It shouldn't be a non-runtime exception because...well,
- *         it's a condition that is detectable before triggering the exception,
- *         so there should be no reason to ever have this exception thrown
- *         except in the case of a program error. Thus, it shouldn't be checked.
- *         - Added a construction with a "string" argument, cause often, it's
- *         nice to be able to put cute messages in with your exceptions :)
- */
+
 class UnderflowException extends RuntimeException {
 	public UnderflowException() {
 	}
@@ -47,6 +15,7 @@ class UnderflowException extends RuntimeException {
 class BST<AnyType extends Comparable<? super AnyType>> {
 
 	int pCnt = 0;// ProbeCounter
+	int lCnt = 0;// Level Counter
 
 	/**
 	 * Construct the tree.
@@ -63,6 +32,16 @@ class BST<AnyType extends Comparable<? super AnyType>> {
 	 */
 	public void insert(AnyType x) {
 		root = insert(x, root);
+	}
+
+	/**
+	 * Return the size of the tree
+	 * 
+	 * @return
+	 */
+
+	public int size() {
+		return size(root);
 	}
 
 	/**
@@ -133,11 +112,66 @@ class BST<AnyType extends Comparable<? super AnyType>> {
 		else
 			printTree(root);
 	}
-	
-	private void splay(AnyType x , TreeNode<AnyType> t) {
-		if (t == null) 
-		{};
-		
+
+	/**
+	 * Print the tree content in BFS order
+	 */
+
+	public void printTreeBF() {
+		printTreeBF(root);
+	}
+
+	private TreeNode splay(AnyType x, TreeNode<AnyType> t) {
+		if (t == null) {
+			return null;
+		}
+		int compareResult = x.compareTo(t.element);
+		return t;
+
+	}
+
+	/**
+	 * Internal method to return the size of the tree
+	 * 
+	 * @param t
+	 *            a node tree
+	 * @return the size of the tree
+	 */
+
+	private int size(TreeNode<AnyType> t) {
+		if (t == null) {
+			return 0;
+		} else {
+			return (size(t.left) + 1 + size(t.right));
+		}
+	}
+
+	/**
+	 * 
+	 * @param t
+	 * @return
+	 */
+
+	private TreeNode rotateLeft(TreeNode<AnyType> t) {
+		TreeNode<AnyType> tmp = t.left;
+		t.left = tmp.right;
+		tmp.right = t;
+
+		return tmp;
+	}
+
+	/**
+	 * 
+	 * @param t
+	 * @return
+	 */
+
+	private TreeNode rotateRight(TreeNode<AnyType> t) {
+		TreeNode<AnyType> tmp = t.right;
+		t.right = tmp.left;
+		tmp.left = t;
+
+		return tmp;
 	}
 
 	/**
@@ -265,6 +299,75 @@ class BST<AnyType extends Comparable<? super AnyType>> {
 	}
 
 	/**
+	 * Internal method that traverse the tree and set the level of the node.
+	 * 
+	 * @param x
+	 * @param t
+	 * @return
+	 */
+	private boolean treeLevel(AnyType x, TreeNode<AnyType> t) {
+
+		if (t == null)
+			return false;
+
+		int compareResult = x.compareTo(t.element);
+
+		if (compareResult < 0) {
+			// increase the number of the probes
+			lCnt++;
+			return treeLevel(x, t.left);
+		} else if (compareResult > 0) {
+			// increase the number of the probes
+			lCnt++;
+			return treeLevel(x, t.right);
+		} else
+			return true; // Match
+	}
+
+	/**
+	 * Internal method that print the tree in BFS order.
+	 * 
+	 * @param T
+	 */
+
+	public void printTreeBF(TreeNode<AnyType> T) {
+
+		Queue<TreeNode> que = new java.util.LinkedList<TreeNode>();
+		int currLevel = 1;
+
+		que.add(T);
+
+		while (!que.isEmpty()) {
+
+			TreeNode<AnyType> current = que.poll();
+
+			if (current != null) {
+
+				lCnt = 1;
+				if (treeLevel(current.element, root)) {
+
+				}
+
+				if (currLevel == lCnt)
+					System.out.print(current.element + " ");
+				else if (currLevel != lCnt) {
+					System.out.println();
+					System.out.print(current.element + " ");
+					currLevel = lCnt;
+				} else {
+					currLevel = lCnt;
+				}
+
+				que.add(current.left);
+				que.add(current.right);
+
+			}
+
+		}
+		System.out.println();
+	}
+
+	/**
 	 * Internal method to compute height of a subtree.
 	 * 
 	 * @param t
@@ -298,8 +401,6 @@ class BST<AnyType extends Comparable<? super AnyType>> {
 	/** The tree root. */
 	private TreeNode<AnyType> root;
 
-	// Test program
-
 }
 
 public class AHZOP2 {
@@ -317,6 +418,7 @@ public class AHZOP2 {
 		int tProbCnt = 0;// Total Prob Counter;
 		float aProbes = 0; // Average number of probes.
 		int sCnt = 0; // Total number of splays
+		int[] p = new int[500];
 
 		while (reader.hasNextLine()) {
 
@@ -333,6 +435,7 @@ public class AHZOP2 {
 					break;
 				}
 				T.insert(inKey);
+
 				iCnt++;
 				System.out.println("Key " + inKey + " inserted");
 
@@ -361,26 +464,61 @@ public class AHZOP2 {
 				tProbCnt += T.pCnt;
 				fCnt++;
 				System.out.println("Key " + inKey + " found");
+				break;
+
+			case 'B':
+				if (T.isEmpty()) {
+					System.out.println("The tree is empty");
+					break;
+				} else {
+					T.printTreeBF();
+					break;
+				}
+
+			case 'E':
+				System.out.println("The toltal number of inserts = " + iCnt);
+				System.out.println("The toltal number of deletes = " + dCnt);
+				System.out.println("The toltal number of splays = " + sCnt);
+				System.out
+						.println("The toltal number of nodes probed during searches = "
+								+ tProbCnt);
+				aProbes = (float) tProbCnt / fCnt;
+				System.out
+						.print("The average number of nodes probed during searches = ");
+				System.out.printf("%.2f", aProbes);
+				System.out.println();
+				break;
+
+			case 'Z':
+				System.out.println(T.size());
+				break;
+
+			case 'R':
+				T.makeEmpty();
+				iCnt = 0;
+				Random rand = new Random();
+				int i = 0;
+				for (i = 0; i < 500; i++) {
+					p[i] = i + 1;
+				}
+				for (i = 0; i < 50000; i++) {
+					inKey = p[rand.nextInt(500)];
+					if (T.contains(inKey)) {
+						// Do Nothing
+					} else {
+						T.insert(inKey);
+						iCnt++;
+					}
+				}
+				break;
 
 			default:
 				break;
 			}
-			System.out.println("The toltal number of inserts = " + iCnt);
-			System.out.println("The toltal number of deletes = " + dCnt);
-			System.out.println("The toltal number of splays = " + sCnt);
-			System.out
-					.println("The toltal number of nodes probed during searches = "
-							+ tProbCnt);
-			aProbes = (float) tProbCnt / fCnt;
-			System.out
-					.print("The average number of nodes probed during searches = ");
-			System.out.printf("%.2f", aProbes);
-			System.out.println();
 
 			reader.nextLine();// Go to next line of the input
 		}
 		reader.close();
-		
 
 	}
 
