@@ -330,7 +330,7 @@ class BST<AnyType extends Comparable<? super AnyType>> {
 	 * @param T
 	 */
 
-	public void printTreeBF(TreeNode<AnyType> T) {
+	private void printTreeBF(TreeNode<AnyType> T) {
 
 		Queue<TreeNode> que = new java.util.LinkedList<TreeNode>();
 		int currLevel = 1;
