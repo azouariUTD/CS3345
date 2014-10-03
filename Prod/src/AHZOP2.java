@@ -31,7 +31,7 @@ class BST<AnyType extends Comparable<? super AnyType>> {
 	 *            the item to insert.
 	 */
 	public void insert(AnyType x) {
-		root = insert(x, root);
+		root = insert(x, root,1);
 	}
 
 	/**
@@ -183,16 +183,24 @@ class BST<AnyType extends Comparable<? super AnyType>> {
 	 *            the node that roots the subtree.
 	 * @return the new root of the subtree.
 	 */
-	private TreeNode<AnyType> insert(AnyType x, TreeNode<AnyType> t) {
+	private TreeNode<AnyType> insert(AnyType x, TreeNode<AnyType> t , Integer level) {
 		if (t == null)
-			return new TreeNode<>(x, null, null);
+			return new TreeNode<>(x, null, null , level);
 
 		int compareResult = x.compareTo(t.element);
 
-		if (compareResult < 0)
-			t.left = insert(x, t.left);
-		else if (compareResult > 0)
-			t.right = insert(x, t.right);
+		if (compareResult < 0) {
+			level++; //Increment the level
+			t.left = insert(x, t.left, level);
+			
+		}
+			
+		else if (compareResult > 0) {
+			level++;//Increment the level
+			t.right = insert(x, t.right, level);
+			
+		}
+			
 		else
 			; // Duplicate; do nothing
 		return t;
@@ -298,32 +306,7 @@ class BST<AnyType extends Comparable<? super AnyType>> {
 		}
 	}
 
-	/**
-	 * Internal method that traverse the tree and set the level of the node.
-	 * 
-	 * @param x
-	 * @param t
-	 * @return
-	 */
-	private boolean treeLevel(AnyType x, TreeNode<AnyType> t) {
-
-		if (t == null)
-			return false;
-
-		int compareResult = x.compareTo(t.element);
-
-		if (compareResult < 0) {
-			// increase the number of the probes
-			lCnt++;
-			return treeLevel(x, t.left);
-		} else if (compareResult > 0) {
-			// increase the number of the probes
-			lCnt++;
-			return treeLevel(x, t.right);
-		} else
-			return true; // Match
-	}
-
+	
 	/**
 	 * Internal method that print the tree in BFS order.
 	 * 
@@ -333,7 +316,8 @@ class BST<AnyType extends Comparable<? super AnyType>> {
 	private void printTreeBF(TreeNode<AnyType> T) {
 
 		Queue<TreeNode> que = new java.util.LinkedList<TreeNode>();
-		int currLevel = 1;
+		int currLevel = 0;
+		int prevLevel = 1;
 
 		que.add(T);
 
@@ -342,24 +326,23 @@ class BST<AnyType extends Comparable<? super AnyType>> {
 			TreeNode<AnyType> current = que.poll();
 
 			if (current != null) {
+				currLevel = current.level;
 
-				lCnt = 1;
-				if (treeLevel(current.element, root)) {
+				
 
-				}
-
-				if (currLevel == lCnt)
-					System.out.print(current.element + " ");
-				else if (currLevel != lCnt) {
+				if (currLevel == prevLevel)
+					System.out.print(current.element + " "  );
+				if (currLevel != prevLevel) {
 					System.out.println();
-					System.out.print(current.element + " ");
-					currLevel = lCnt;
-				} else {
-					currLevel = lCnt;
-				}
+					System.out.print(current.element + " "  );
+					
+				} 
+					
+			
 
 				que.add(current.left);
 				que.add(current.right);
+				prevLevel = currLevel;
 
 			}
 
@@ -384,16 +367,18 @@ class BST<AnyType extends Comparable<? super AnyType>> {
 	private static class TreeNode<AnyType> {
 		// Constructors
 		TreeNode(AnyType theElement) {
-			this(theElement, null, null);
+			this(theElement, null, null , null);
 		}
 
-		TreeNode(AnyType theElement, TreeNode<AnyType> lt, TreeNode<AnyType> rt) {
+		TreeNode(AnyType theElement, TreeNode<AnyType> lt, TreeNode<AnyType> rt ,  Integer lv) {
 			element = theElement;
 			left = lt;
 			right = rt;
+			level = lv;
 		}
 
 		AnyType element; // The data in the node
+		Integer level;
 		TreeNode<AnyType> left; // Left child
 		TreeNode<AnyType> right; // Right child
 	}
@@ -476,6 +461,7 @@ public class AHZOP2 {
 				}
 
 			case 'E':
+				T = null;
 				System.out.println("The toltal number of inserts = " + iCnt);
 				System.out.println("The toltal number of deletes = " + dCnt);
 				System.out.println("The toltal number of splays = " + sCnt);
@@ -495,11 +481,23 @@ public class AHZOP2 {
 
 			case 'R':
 				T.makeEmpty();
-				iCnt = 0;
+				
 				Random rand = new Random();
+				//Create an array
 				int i = 0;
 				for (i = 0; i < 500; i++) {
 					p[i] = i + 1;
+				}
+				//Shuffle the array
+				for (i = 0 ; i < 500 ; i++) {
+					int b = rand.nextInt(500);
+					int a = p[i];
+					
+					p[i] = p[b];
+					p[b] = a;
+					
+					
+					
 				}
 				for (i = 0; i < 50000; i++) {
 					inKey = p[rand.nextInt(500)];
