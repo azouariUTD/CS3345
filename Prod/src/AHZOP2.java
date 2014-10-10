@@ -1,7 +1,9 @@
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.Queue;
 import java.util.Random;
 
+@SuppressWarnings("serial")
 class UnderflowException extends RuntimeException {
 	public UnderflowException() {
 	}
@@ -210,7 +212,9 @@ class BST<AnyType extends Comparable<? super AnyType>> {
 				return t;
 
 		} else
+		{
 			return t;
+		}
 		return t;
 	}
 
@@ -412,6 +416,7 @@ class BST<AnyType extends Comparable<? super AnyType>> {
 
 	private void printTreeBF(TreeNode<AnyType> T) {
 
+		@SuppressWarnings("rawtypes")
 		Queue<TreeNode> que = new java.util.LinkedList<TreeNode>();
 		int currLevel = 0;
 		int prevLevel = 1;
@@ -420,6 +425,7 @@ class BST<AnyType extends Comparable<? super AnyType>> {
 
 		while (!que.isEmpty()) {
 
+			@SuppressWarnings("unchecked")
 			TreeNode<AnyType> current = que.poll();
 
 			if (current != null) {
@@ -500,6 +506,8 @@ public class AHZOP2 {
 		int[] p = new int[500];
 
 		while (reader.hasNextLine()) {
+			
+			try {
 
 			inReq = reader.next();
 			inReqChr = inReq.charAt(0);
@@ -576,7 +584,10 @@ public class AHZOP2 {
 				System.out
 						.println("The total number of rotations during splays = "
 								+ rotCount);
-				aSplays = (float) rotCount / sCnt;
+				if ( sCnt > 0) {
+					aSplays = (float) rotCount / sCnt;
+				} else 
+				aSplays =0;
 				System.out
 						.print("The average number of rotations during splays = ");
 				System.out.printf("%.2f", aSplays);
@@ -634,7 +645,11 @@ public class AHZOP2 {
 			}
 
 			reader.nextLine();// Go to next line of the input
-		}
+			} catch (NoSuchElementException e) {
+				
+			}
+			
+			}
 		reader.close();
 
 	}
