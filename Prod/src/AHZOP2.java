@@ -159,23 +159,20 @@ class BST<AnyType extends Comparable<? super AnyType>> {
 
 		// Left side of the tree
 		if (x.compareTo(t.element) < 0) {
-			if (t.left == null) {
-				return t;
+			if (t == root & ((getLevel(x) % 2) == 0)) {
+				// zig
+				t.left = splay(x, t.left);
+				t = rotateWithLeftChild(t);
+				rCnt++;
 			}
-			if (x.compareTo(t.left.element) < 0) {
-				if (t == root & ((getLevel(x) % 2) == 0)) {
-					// zig
-					t.left = splay(x, t.left);
-					t = rotateWithLeftChild(t);
-					rCnt++;
-				} else {
-					// zig zig
-					t.left.left = splay(x, t.left.left);
-					t = rotateWithLeftChild(t);
-					t = rotateWithLeftChild(t);
-					rCnt++;
 
-				}
+			else if (x.compareTo(t.left.element) < 0) {
+				// zig zig
+				t.left.left = splay(x, t.left.left);
+				t = rotateWithLeftChild(t);
+				t = rotateWithLeftChild(t);
+				rCnt++;
+
 			} else if (x.compareTo(t.left.element) > 0) {
 				// Zig Zag
 				t.left.right = splay(x, t.left.right);
@@ -186,36 +183,27 @@ class BST<AnyType extends Comparable<? super AnyType>> {
 
 			// Right side
 		} else if (x.compareTo(t.element) > 0) {
-			if (t.right == null) {
-				return t;
-			}
-			if (x.compareTo(t.right.element) > 0) {
-				if (t == root & ((getLevel(x) % 2) == 0)) {
-					// zig
-					t.right = splay(x, t.right);
-					t = rotateWithRightChild(t);
-					rCnt++;
-				} else {
-					// zig zig
-					t.right.right = splay(x, t.right.right);
-					t = rotateWithRightChild(t);
-					t = rotateWithRightChild(t);
-					rCnt++;
-
-				}
-			} else if (x.compareTo(t.right.element) < 0) {
-				// Zig Zag
-				t.right.left = splay(x, t.right.left);
-				t = doubleWithRightChild(t);
+			if (t == root & ((getLevel(x) % 2) == 0)) {
+				// zig
+				t.right = splay(x, t.right);
+				t = rotateWithRightChild(t);
 				rCnt++;
-			} else
-				return t;
-
+			} else if (x.compareTo(t.right.element) > 0) {
+				// zig zig
+				t.right.right = splay(x, t.right.right);
+				t = rotateWithRightChild(t);
+				t = rotateWithRightChild(t);
+				rCnt++;
+			
+		} else if (x.compareTo(t.right.element) < 0) {
+			// Zig Zag
+			t.right.left = splay(x, t.right.left);
+			t = doubleWithRightChild(t);
+			rCnt++;
 		} else
-		{
 			return t;
-		}
-		return t;
+		}  return t;
+
 	}
 
 	/**
@@ -506,150 +494,156 @@ public class AHZOP2 {
 		int[] p = new int[500];
 
 		while (reader.hasNextLine()) {
-			
+
 			try {
 
-			inReq = reader.next();
-			inReqChr = inReq.charAt(0);
-			switch (inReqChr) {
-			case 'N':
-				System.out.println("Ahmed Zouari");
-				break;
-			case 'A':
-				inKey = reader.nextInt();
-				if (T.contains(inKey)) {
-					System.out.println("Key " + inKey + " already exists");
+				inReq = reader.next();
+				inReqChr = inReq.charAt(0);
+				switch (inReqChr) {
+				case 'N':
+					System.out.println("Ahmed Zouari");
 					break;
-				}
-				T.insert(inKey);
+				case 'A':
+					inKey = reader.nextInt();
+					if (T.contains(inKey)) {
+						System.out.println("Key " + inKey + " already exists");
+						break;
+					}
+					T.insert(inKey);
 
-				iCnt++;
-				System.out.println("Key " + inKey + " inserted");
+					iCnt++;
+					System.out.println("Key " + inKey + " inserted");
 
-				break;
-			case 'D':
-				inKey = reader.nextInt();
-				if (!T.contains(inKey)) {
-					System.out.println("Key " + inKey + " not found");
 					break;
-				}
-				T.remove(inKey);
-				dCnt++;
-				System.out.println("Key " + inKey + " deleted");
+				case 'D':
+					inKey = reader.nextInt();
+					if (!T.contains(inKey)) {
+						System.out.println("Key " + inKey + " not found");
+						dCnt++;
+						break;
+					}
+					T.remove(inKey);
+					dCnt++;
+					System.out.println("Key " + inKey + " deleted");
 
-				break;
-			case 'F':
-				inKey = reader.nextInt();
-				T.pCnt = 1; // Reset the probe counter
-				if (!T.contains(inKey)) {
-					System.out.println("Key " + inKey + " not found");
+					break;
+				case 'F':
+					inKey = reader.nextInt();
+					T.pCnt = 1; // Reset the probe counter
+					if (!T.contains(inKey)) {
+						System.out.println("Key " + inKey + " not found");
+						tProbCnt += T.pCnt;
+						fCnt++;
+
+						break;
+					}
+
 					tProbCnt += T.pCnt;
 					fCnt++;
+					System.out.println("Key " + inKey + " found");
 
 					break;
-				}
 
-				tProbCnt += T.pCnt;
-				fCnt++;
-				System.out.println("Key " + inKey + " found");
+				case 'B':
+					if (T.isEmpty()) {
+						System.out.println("The tree is empty");
+						break;
+					} else {
+						T.printTreeBF();
+						break;
+					}
 
-				break;
+				case 'E':
+					int rotCount = T.rCnt;
+					T = null;
+					System.out.println();
 
-			case 'B':
-				if (T.isEmpty()) {
-					System.out.println("The tree is empty");
+					System.out.println();
+					System.out
+							.println("The toltal number of inserts = " + iCnt);
+					System.out
+							.println("The toltal number of deletes = " + dCnt);
+					System.out.println("The toltal number of splays = " + sCnt);
+					System.out
+							.println("The toltal number of nodes probed during searches = "
+									+ tProbCnt);
+					if (fCnt > 0) {
+						aProbes = (float) tProbCnt / fCnt;
+					} else
+						aProbes = 0;
+					System.out
+							.print("The average number of nodes probed during searches = ");
+					System.out.printf("%.2f", aProbes);
+					System.out.println();
+					System.out
+							.println("The total number of rotations during splays = "
+									+ rotCount);
+					if (sCnt > 0) {
+						aSplays = (float) rotCount / sCnt;
+					} else
+						aSplays = 0;
+					System.out
+							.print("The average number of rotations during splays = ");
+					System.out.printf("%.2f", aSplays);
+					System.out.println();
+
 					break;
-				} else {
-					T.printTreeBF();
+
+				case 'Z':
+					System.out.println(T.size());
 					break;
-				}
 
-			case 'E':
-				int rotCount = T.rCnt;
-				T = null;
-				System.out.println("The toltal number of inserts = " + iCnt);
-				System.out.println("The toltal number of deletes = " + dCnt);
-				System.out.println("The toltal number of splays = " + sCnt);
-				System.out
-						.println("The toltal number of nodes probed during searches = "
-								+ tProbCnt);
-				if (fCnt > 0) {
-					aProbes = (float) tProbCnt / fCnt;
-				} else
-					aProbes = 0;
-				System.out
-						.print("The average number of nodes probed during searches = ");
-				System.out.printf("%.2f", aProbes);
-				System.out.println();
-				System.out
-						.println("The total number of rotations during splays = "
-								+ rotCount);
-				if ( sCnt > 0) {
-					aSplays = (float) rotCount / sCnt;
-				} else 
-				aSplays =0;
-				System.out
-						.print("The average number of rotations during splays = ");
-				System.out.printf("%.2f", aSplays);
-				System.out.println();
-
-				break;
-
-			case 'Z':
-				System.out.println(T.size());
-				break;
-
-			case 'S':
-				inKey = reader.nextInt();
-				if (!T.contains(inKey)) {
-					System.out.println("Key " + inKey + " not found");
-					sCnt++;
-					break;
-				}
-				T.splay(inKey);
-				System.out.println("key " + inKey + " splayed");
-				sCnt++;
-				break;
-
-			case 'R':
-				T.makeEmpty();
-
-				Random rand = new Random();
-				// Create an array
-				int i = 0;
-				for (i = 0; i < 500; i++) {
-					p[i] = i + 1;
-				}
-				// Shuffle the array
-				for (i = 0; i < 500; i++) {
-					int b = rand.nextInt(500);
-					int a = p[i];
-
-					p[i] = p[b];
-					p[b] = a;
-
-				}
-				for (i = 0; i < 5000; i++) {
-					inKey = p[rand.nextInt(500)];
-					
-					T.insert(inKey);
+				case 'S':
+					inKey = reader.nextInt();
+					if (!T.contains(inKey)) {
+						System.out.println("Key " + inKey + " not found");
+						sCnt++;
+						break;
+					}
 					T.splay(inKey);
+					System.out.println("key " + inKey + " splayed");
 					sCnt++;
-					iCnt++;
+					break;
+
+				case 'R':
+					T.makeEmpty();
+
+					Random rand = new Random();
+					// Create an array
+					int i = 0;
+					for (i = 0; i < 500; i++) {
+						p[i] = i + 1;
+					}
+					// Shuffle the array
+					for (i = 0; i < 500; i++) {
+						int b = rand.nextInt(500);
+						int a = p[i];
+
+						p[i] = p[b];
+						p[b] = a;
+
+					}
+					for (i = 0; i < 5000; i++) {
+						inKey = p[rand.nextInt(500)];
+
+						T.insert(inKey);
+						T.splay(inKey);
+						sCnt++;
+						iCnt++;
+					}
+					// }
+					break;
+
+				default:
+					break;
 				}
-				// }
-				break;
 
-			default:
-				break;
-			}
-
-			reader.nextLine();// Go to next line of the input
+				reader.nextLine();// Go to next line of the input
 			} catch (NoSuchElementException e) {
-				
+
 			}
-			
-			}
+
+		}
 		reader.close();
 
 	}
