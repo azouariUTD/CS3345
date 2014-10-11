@@ -1,3 +1,10 @@
+/**
+ * @author Ahmed Zouari.
+ * Project 2 CS3345.
+ * The following code was used:
+ * Dr Page: Tree rotation left, right and double taken from AVL Tree lecture notes.
+ * Mark Allen Weiss: Binary Search Tree taking from Notes provided by Dr Page.
+ */
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.Queue;
@@ -586,6 +593,7 @@ public class AHZOP2 {
 							.print("The average number of rotations during splays = ");
 					System.out.printf("%.2f", aSplays);
 					System.out.println();
+					System.exit(0);
 
 					break;
 
