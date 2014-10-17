@@ -201,15 +201,16 @@ class BST<AnyType extends Comparable<? super AnyType>> {
 				t = rotateWithRightChild(t);
 				t = rotateWithRightChild(t);
 				rCnt++;
-			
-		} else if (x.compareTo(t.right.element) < 0) {
-			// Zig Zag
-			t.right.left = splay(x, t.right.left);
-			t = doubleWithRightChild(t);
-			rCnt++;
-		} else
-			return t;
-		}  return t;
+
+			} else if (x.compareTo(t.right.element) < 0) {
+				// Zig Zag
+				t.right.left = splay(x, t.right.left);
+				t = doubleWithRightChild(t);
+				rCnt++;
+			} else
+				return t;
+		}
+		return t;
 
 	}
 
