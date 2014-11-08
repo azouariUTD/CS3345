@@ -2,6 +2,26 @@ import java.util.Random;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+class Maze {
+	int width;
+	int height;
+	int depth;
+	int[] mid;
+	int[] msz;
+
+	Maze(int w, int d, int h) {
+		mid = new int[w * h * d - 1];
+		msz = new int[w * h * d - 1];
+		this.height = h;
+		this.depth = d;
+		this.width = w;
+		for (int i = 0; i < mid.length; i++) {
+			mid[i] = i;
+			msz[i] = 1;
+		}
+	}
+}
+
 class UnionFind {
 	int N;
 	int[] id;
@@ -100,9 +120,17 @@ public class AHZOP3 {
 
 	public static void main(String[] args) {
 		Scanner reader = new Scanner(System.in);
+		Random rand = new Random();
+		ArrayList edges = new ArrayList();
 		String req;
 		int SIZE;
 		int x = 0, y = 0;
+		int w, d, h;
+		int candidate;
+		int direction;
+		int nextLevel;
+		int candidatej;
+		int weight;
 
 		// Process the header first
 		req = reader.next();
@@ -134,6 +162,148 @@ public class AHZOP3 {
 			case "c":
 				uf.printConnectList();
 				break;
+			case "e":
+				System.exit(0);
+				break;
+			case "m":
+				w = reader.nextInt();
+				d = reader.nextInt();
+				h = reader.nextInt();
+				nextLevel = w * d;
+
+				SIZE = w * d * h;
+				UnionFind mz = new UnionFind(SIZE);
+
+				while (edges.size() < SIZE) {
+					candidate = rand.nextInt(SIZE); // generate candidate
+													// between 0<=i<SIZE
+					direction = rand.nextInt(6);
+					switch (direction) {
+
+					case 0:
+						// North decrease by width
+						// Stay on the same floor
+						candidatej = candidate - w;
+						// Validate j
+						// Check if j is in the maze:
+						if (candidatej < 0)
+							break;
+						// Check if j is on the same floor as i
+						else if (!(candidate / (w * d) == candidatej / (w * d)))
+							break;
+						// Connect
+						else {
+							x = mz.find(candidate);
+							y = mz.find(candidatej);
+							mz.union(x, y);
+							weight = rand.nextInt(21);
+						}
+						if (!edges.contains(x)) edges.add(x);
+						if (!edges.contains(y)) edges.add(y);
+						
+						break;
+					case 1:
+						// East increase by 1
+						candidatej = candidate + 1;
+						// Validate j
+						// Check if j is on the same floor as i
+						if (!(candidate / (w * d) == candidatej / (w * d)))
+							break;
+						// Same line
+						else if (!(candidatej / w == candidate / w))
+							break;
+						else {
+							x = mz.find(candidate);
+							y = mz.find(candidatej);
+							mz.union(x, y);
+							weight = rand.nextInt(21);
+						}
+						if (!edges.contains(x)) edges.add(x);
+						if (!edges.contains(y)) edges.add(y);
+						break;
+					case 2:
+
+						// South increase by width
+						// Stay on the same floor
+						candidatej = candidate + w;
+						// Validate j
+						// Check if j is in the maze:
+						if (candidatej < 0)
+							break;
+						// Check if j is on the same floor as i
+						else if (!(candidate / (w * d) == candidatej / (w * d)))
+							break;
+						// Connect
+						else {
+							x = mz.find(candidate);
+							y = mz.find(candidatej);
+							mz.union(x, y);
+							weight = rand.nextInt(21);
+						}
+						if (!edges.contains(x)) edges.add(x);
+						if (!edges.contains(y)) edges.add(y);
+						break;
+
+					case 3:
+						// West decrease by 1
+						candidatej = candidate - 1;
+						// Validate j
+						// Check if j is on the same floor as i
+						if (!(candidate / (w * d) == candidatej / (w * d)))
+							break;
+						// Same line
+						else if (!(candidatej / w == candidate / w))
+							break;
+						else {
+							x = mz.find(candidate);
+							y = mz.find(candidatej);
+							mz.union(x, y);
+							weight = rand.nextInt(21);
+						}
+						if (!edges.contains(x)) edges.add(x);
+						if (!edges.contains(y)) edges.add(y);
+						break;
+					case 4:
+						// Up increase by the height
+						candidatej = candidate + h;
+						// validate j
+						// Check if j is in the maze
+						if (candidatej > (SIZE - 1))
+							break;
+						else {
+							x = mz.find(candidate);
+							y = mz.find(candidatej);
+							mz.union(x, y);
+							weight = rand.nextInt(21);
+
+						}
+						if (!edges.contains(x)) edges.add(x);
+						if (!edges.contains(y)) edges.add(y);
+						break;
+					case 5:
+						// Down decrease by the height
+						candidatej = candidate - h;
+						// validate j
+						// Check if j is in the maze
+						if (candidatej < 0)
+							break;
+						else {
+							x = mz.find(candidate);
+							y = mz.find(candidatej);
+							mz.union(x, y);
+							weight = rand.nextInt(21);
+
+						}
+						if (!edges.contains(x)) edges.add(x);
+						if (!edges.contains(y)) edges.add(y);
+						break;
+						default:
+							break;
+
+					}
+
+				}
+
 			default:
 				break;
 
@@ -141,6 +311,8 @@ public class AHZOP3 {
 
 			reader.nextLine();// Go to next line of the input
 		}
+		reader.close();
+
 		/*
 		 * int n = 12; int s = 26;
 		 * 
