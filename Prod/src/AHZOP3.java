@@ -290,7 +290,7 @@ public class AHZOP3 {
 				SIZE = w * d * h;
 				UnionFind mz = new UnionFind(SIZE);
 
-				while (edges.size() < SIZE) {
+				while (mz.sets() != 1) {
 
 					candidate = rand.nextInt(SIZE); // generate candidate
 													// between 0<=i<SIZE
