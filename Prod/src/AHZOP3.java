@@ -2,30 +2,113 @@ import java.util.Random;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-class Maze {
-	int width;
-	int height;
-	int depth;
-	int[] mid;
-	int[] msz;
+class Union {
+	Node head;
 
-	Maze(int w, int d, int h) {
-		mid = new int[w * h * d - 1];
-		msz = new int[w * h * d - 1];
-		this.height = h;
-		this.depth = d;
-		this.width = w;
-		for (int i = 0; i < mid.length; i++) {
-			mid[i] = i;
-			msz[i] = 1;
+	Union() {
+		head = null;
+	}
+
+	void addAtHead(String k, int e, int c, int w) {
+		head = new Node(k, e, c, w, head);
+	}
+
+	void printUnion() {
+		Node cursor = head;
+		while (cursor.nxt != null) {
+			System.out.println(cursor.edge + " " + cursor.connection + " "
+					+ cursor.weight);
+			cursor = cursor.nxt;
 		}
 	}
+
+	void printUniono() {
+		Node cursor = head;
+		String S1 = "";
+		String S2 = "";
+		String S = "";
+		try {
+			while (cursor.nxt != null) {
+				Node cursor2 = cursor;
+				S1 = "";
+				S2 = "";
+				while (cursor2 != null & cursor2.edge == cursor.edge) {
+					S1 += cursor2.connection + " ";
+					S2 += cursor2.weight + " ";
+					cursor2 = cursor2.nxt;
+				}
+
+				System.out.println(cursor.edge + " " + S1 + S2);
+				cursor = cursor2;
+			}
+		} catch (NullPointerException e) {
+		}
+	}
+
+	void insertInOrder(String k, int e, int c, int w) {
+		if (head == null) {
+			head = new Node(k, e, c, w);
+		} else {
+			if (head.getValue() > e) {
+				head = new Node(k, e, c, w, head);
+			} else {
+				Node ref = head;
+				Node prev = null;
+				while (ref != null && ref.getValue() <= e) {
+					prev = ref;
+					ref = ref.getNext();
+				}
+				prev.putNext(new Node(k, e, c, w, ref));
+			}
+		}
+
+	}
+
+	class Node {
+		String key;
+		int edge;
+		int connection;
+		int weight;
+		Node nxt;
+
+		Node(String k, int e, int c, int w) {
+			key = k;
+			edge = e;
+			connection = c;
+			weight = w;
+			nxt = null;
+		}
+
+		Node(String k, int e, int c, int w, Node next) {
+			key = k;
+			edge = e;
+			connection = c;
+			weight = w;
+			nxt = next;
+		}
+
+		int getValue() {
+			return edge;
+		}
+
+		Node getNext() {
+			return nxt;
+		}
+
+		void putNext(Node next) {
+			nxt = next;
+		}
+
+	}
+
 }
 
 class UnionFind {
 	int N;
 	int[] id;
 	int[] sz;
+	static int pl = 0;// Total path length
+	static int cf = 0;// Total calls to finds
 
 	// Constructor
 	UnionFind(int N) {
@@ -69,6 +152,9 @@ class UnionFind {
 
 		for (int i = 0; i < sz.length; i++) {
 			System.out.print(prArray[i] + " ");
+			if (i != 0 && (i + 1) % 20 == 0) {
+				System.out.println();
+			}
 		}
 		System.out.println();
 	}
@@ -76,7 +162,7 @@ class UnionFind {
 	public void union(int p, int q) {
 		int i = root(p);
 		int j = root(q);
-		// id [i] = j;
+
 		if (i == j)
 			return;
 		if (sz[i] < sz[j]) {
@@ -95,23 +181,42 @@ class UnionFind {
 	}
 
 	private int root(int i) {
+		cf++;
 		while (i != id[i]) {
-			id[i] = id[id[i]]; // Path Compression
-			i = id[i];
+			if (id[i] == id[id[i]]) {
+				i = id[i];
+				pl++;
+			} else {
+				id[i] = id[id[i]]; // Path Compression
+				i = id[i];
+				pl++;
+				pl++;
+			}
 		}
+
 		return i;
 	}
 
 	int find(int y) {
+
 		return root(y);
 	}
 
 	int sets() {
-		int nSets = 0;
-		return nSets;
+		ArrayList<Integer> T = new ArrayList<>();
+		for (int i = 0; i < id.length; i++) {
+			if (!T.contains(id[id[i]]))
+				T.add(id[id[i]]);
+		}
+		return T.size();
 	}
 
 	void printStats() {
+		System.out.println("Number of disjoint sets remaining = " + sets());
+		float meanPath = (float) pl / cf;
+		System.out.printf("Mean path length of all find operations = %.2f",
+				meanPath);
+		System.out.println();
 
 	}
 }
@@ -121,10 +226,12 @@ public class AHZOP3 {
 	public static void main(String[] args) {
 		Scanner reader = new Scanner(System.in);
 		Random rand = new Random();
-		ArrayList edges = new ArrayList();
+		ArrayList<Integer> edges = new ArrayList<Integer>();
+		ArrayList<String> edgesn = new ArrayList<String>();
 		String req;
 		int SIZE;
 		int x = 0, y = 0;
+		int p, q;
 		int w, d, h;
 		int candidate;
 		int direction;
@@ -139,6 +246,8 @@ public class AHZOP3 {
 		SIZE = reader.nextInt();
 		UnionFind uf = new UnionFind(SIZE);
 
+		Union u = new Union();
+
 		while (reader.hasNextLine()) {
 			req = reader.next();
 
@@ -148,6 +257,9 @@ public class AHZOP3 {
 				y = reader.nextInt();
 				if (!uf.connected(x, y)) {
 					uf.union(x, y);
+
+					System.out.println(uf.id[x] + " " + uf.sz[uf.id[x]]);
+					// System.out.println("total path length:" + UnionFind.pl);
 				} else
 					System.out.println(x + " and " + y
 							+ " are already in the same set");
@@ -155,6 +267,7 @@ public class AHZOP3 {
 			case "f":
 				x = reader.nextInt();
 				System.out.println("The root of " + x + " is " + uf.find(x));
+				// System.out.println("total path length:" + UnionFind.pl);
 				break;
 			case "p":
 				uf.printArray();
@@ -164,7 +277,10 @@ public class AHZOP3 {
 				break;
 			case "e":
 				System.exit(0);
+			case "S":
+				uf.printStats();
 				break;
+
 			case "m":
 				w = reader.nextInt();
 				d = reader.nextInt();
@@ -175,12 +291,16 @@ public class AHZOP3 {
 				UnionFind mz = new UnionFind(SIZE);
 
 				while (edges.size() < SIZE) {
+
 					candidate = rand.nextInt(SIZE); // generate candidate
 													// between 0<=i<SIZE
 					direction = rand.nextInt(6);
+					weight = rand.nextInt(20) + 1;
+
 					switch (direction) {
 
 					case 0:
+
 						// North decrease by width
 						// Stay on the same floor
 						candidatej = candidate - w;
@@ -193,16 +313,33 @@ public class AHZOP3 {
 							break;
 						// Connect
 						else {
-							x = mz.find(candidate);
-							y = mz.find(candidatej);
-							mz.union(x, y);
-							weight = rand.nextInt(21);
+							String key = candidate + " " + candidatej;
+							String keyr = candidatej + " " + candidate;
+							if (!edgesn.contains(key)) {
+
+								mz.union(candidate, candidatej);
+
+								u.insertInOrder(candidate + " " + candidatej,
+										candidate, candidatej, weight);
+
+								edgesn.add(key);
+								edgesn.add(keyr);
+
+							}
+
 						}
-						if (!edges.contains(x)) edges.add(x);
-						if (!edges.contains(y)) edges.add(y);
-						
+
+						if (!edges.contains(candidate)) {
+							edges.add(candidate);
+						}
+
+						if (!edges.contains(candidatej)) {
+							edges.add(candidatej);
+						}
+
 						break;
 					case 1:
+
 						// East increase by 1
 						candidatej = candidate + 1;
 						// Validate j
@@ -212,14 +349,30 @@ public class AHZOP3 {
 						// Same line
 						else if (!(candidatej / w == candidate / w))
 							break;
+						// Connect
 						else {
-							x = mz.find(candidate);
-							y = mz.find(candidatej);
-							mz.union(x, y);
-							weight = rand.nextInt(21);
+							String key = candidate + " " + candidatej;
+							String keyr = candidatej + " " + candidate;
+							if (!edgesn.contains(key)) {
+
+								mz.union(candidate, candidatej);
+								u.insertInOrder(candidate + " " + candidatej,
+										candidate, candidatej, weight);
+								edgesn.add(key);
+								edgesn.add(keyr);
+
+							}
+
 						}
-						if (!edges.contains(x)) edges.add(x);
-						if (!edges.contains(y)) edges.add(y);
+
+						if (!edges.contains(candidate)) {
+							edges.add(candidate);
+						}
+
+						if (!edges.contains(candidatej)) {
+							edges.add(candidatej);
+						}
+
 						break;
 					case 2:
 
@@ -235,74 +388,163 @@ public class AHZOP3 {
 							break;
 						// Connect
 						else {
-							x = mz.find(candidate);
-							y = mz.find(candidatej);
-							mz.union(x, y);
-							weight = rand.nextInt(21);
+							String key = candidate + " " + candidatej;
+							String keyr = candidatej + " " + candidate;
+							if (!edgesn.contains(key)) {
+
+								mz.union(candidate, candidatej);
+								u.insertInOrder(candidate + " " + candidatej,
+										candidate, candidatej, weight);
+								edgesn.add(key);
+								edgesn.add(keyr);
+
+							}
+
 						}
-						if (!edges.contains(x)) edges.add(x);
-						if (!edges.contains(y)) edges.add(y);
+
+						if (!edges.contains(candidate)) {
+							edges.add(candidate);
+						}
+
+						if (!edges.contains(candidatej)) {
+							edges.add(candidatej);
+						}
 						break;
 
 					case 3:
+
 						// West decrease by 1
 						candidatej = candidate - 1;
 						// Validate j
+						// Check if j is in the maze:
+						if (candidatej < 0)
+							break;
 						// Check if j is on the same floor as i
-						if (!(candidate / (w * d) == candidatej / (w * d)))
+						else if (!(candidate / (w * d) == candidatej / (w * d)))
 							break;
 						// Same line
 						else if (!(candidatej / w == candidate / w))
 							break;
+						// Connect
 						else {
-							x = mz.find(candidate);
-							y = mz.find(candidatej);
-							mz.union(x, y);
-							weight = rand.nextInt(21);
+							String key = candidate + " " + candidatej;
+							String keyr = candidatej + " " + candidate;
+							if (!edgesn.contains(key)) {
+
+								mz.union(candidate, candidatej);
+								u.insertInOrder(candidate + " " + candidatej,
+										candidate, candidatej, weight);
+								edgesn.add(key);
+								edgesn.add(keyr);
+
+							}
+
 						}
-						if (!edges.contains(x)) edges.add(x);
-						if (!edges.contains(y)) edges.add(y);
+
+						if (!edges.contains(candidate)) {
+							edges.add(candidate);
+						}
+
+						if (!edges.contains(candidatej)) {
+							edges.add(candidatej);
+						}
 						break;
 					case 4:
+
 						// Up increase by the height
 						candidatej = candidate + h;
 						// validate j
 						// Check if j is in the maze
 						if (candidatej > (SIZE - 1))
 							break;
+						// Connect
 						else {
-							x = mz.find(candidate);
-							y = mz.find(candidatej);
-							mz.union(x, y);
-							weight = rand.nextInt(21);
+							String key = candidate + " " + candidatej;
+							String keyr = candidatej + " " + candidate;
+							if (!edgesn.contains(key)) {
+
+								mz.union(candidate, candidatej);
+								u.insertInOrder(candidate + " " + candidatej,
+										candidate, candidatej, weight);
+								edgesn.add(key);
+								edgesn.add(keyr);
+
+							}
 
 						}
-						if (!edges.contains(x)) edges.add(x);
-						if (!edges.contains(y)) edges.add(y);
+
+						if (!edges.contains(candidate)) {
+							edges.add(candidate);
+						}
+
+						if (!edges.contains(candidatej)) {
+							edges.add(candidatej);
+						}
 						break;
 					case 5:
+
 						// Down decrease by the height
 						candidatej = candidate - h;
 						// validate j
 						// Check if j is in the maze
 						if (candidatej < 0)
 							break;
+						// Connect
 						else {
-							x = mz.find(candidate);
-							y = mz.find(candidatej);
-							mz.union(x, y);
-							weight = rand.nextInt(21);
+							String key = candidate + " " + candidatej;
+							String keyr = candidatej + " " + candidate;
+							if (!edgesn.contains(key)) {
+
+								mz.union(candidate, candidatej);
+								u.insertInOrder(candidate + " " + candidatej,
+										candidate, candidatej, weight);
+								edgesn.add(key);
+								edgesn.add(keyr);
+
+							}
 
 						}
-						if (!edges.contains(x)) edges.add(x);
-						if (!edges.contains(y)) edges.add(y);
+
+						if (!edges.contains(candidate)) {
+							edges.add(candidate);
+						}
+
+						if (!edges.contains(candidatej)) {
+							edges.add(candidatej);
+						}
 						break;
-						default:
-							break;
+					default:
+						break;
 
 					}
 
 				}
+				u.printUniono();
+				/*
+				 * edgesn.remove("One"); Collections.sort(edgesn);
+				 */
+				// for (String pr: edgesn) { System.out.println(pr); }
+
+				while (reader.hasNextLine()) {
+					req = reader.next();
+
+					switch (req) {
+					case "p":
+						mz.printArray();
+						break;
+					case "c":
+						mz.printConnectList();
+						break;
+					case "e":
+						System.exit(0);
+					case "S":
+						mz.printStats();
+
+						break;
+					}
+					reader.nextLine();
+				}
+				break;
 
 			default:
 				break;
@@ -312,56 +554,6 @@ public class AHZOP3 {
 			reader.nextLine();// Go to next line of the input
 		}
 		reader.close();
-
-		/*
-		 * int n = 12; int s = 26;
-		 * 
-		 * Random edges = new Random(); Random weights = new Random();
-		 * 
-		 * 
-		 * UnionFind maze = new UnionFind(s); UnionFind uf = new UnionFind(n);
-		 * uf.union(1, 2);
-		 * 
-		 * uf.union(3, 4);
-		 * 
-		 * uf.union(5,6); uf.union(7,8); uf.union(9,10); uf.union(2,4);
-		 * uf.union(6,8); uf.union(11,6); System.out.println("The root of 1 is:"
-		 * + uf.find(1)) ; System.out.println("The root of 2 is:" + uf.find(2))
-		 * ;
-		 * 
-		 * System.out.println("The root of 4 is:" + uf.find(4)) ;
-		 * System.out.println("The root of 8 is:" + uf.find(8)) ;
-		 * System.out.println("The root of 10 is:" + uf.find(10)) ;
-		 * System.out.println("The root of 8 is:" + uf.find(8)) ;
-		 * System.out.println("The root of 3 is:" + uf.find(3)) ;
-		 * 
-		 * 
-		 * for ( int i = 0 ; i < uf.id.length ; i++) { System.out.print(i +
-		 * "|"); } System.out.println();
-		 * 
-		 * for ( int i = 0 ; i < uf.id.length ; i++) { System.out.print(uf.id[i]
-		 * + "|"); } System.out.println();
-		 * 
-		 * for ( int i = 0 ; i < uf.sz.length ; i++) { System.out.print(uf.sz[i]
-		 * + "|"); } System.out.println();
-		 * 
-		 * uf.printArray();
-		 * 
-		 * boolean pflag = false;
-		 * 
-		 * for (int i = 0 ; i < uf.id.length ; i++ ) { for (int j = 0; j <
-		 * uf.id.length ; j++) { if (i == uf.id[j]) { System.out.print(j + " ");
-		 * pflag = true; }
-		 * 
-		 * } if (pflag) { System.out.println(); pflag = false; } }
-		 * 
-		 * 
-		 * 
-		 * 
-		 * 
-		 * 
-		 * //—1 -4 1 1 1 -5 5 5 5 -2 9 5
-		 */
 
 	}
 }
