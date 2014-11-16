@@ -1,104 +1,24 @@
+import java.util.Comparator;
 import java.util.Random;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.Collections;
 
-class Union {
-	Node head;
+class Maze {
+	int i;
+	int j;
+	int weight;
+	String direction;
 
-	Union() {
-		head = null;
+	Maze(int edgei, int edgej, int w, String d) {
+		i = edgei;
+		j = edgej;
+		weight = w;
+		direction = d;
 	}
 
-	void addAtHead(String k, int e, int c, int w) {
-		head = new Node(k, e, c, w, head);
-	}
-
-	void printUnion() {
-		Node cursor = head;
-		while (cursor.nxt != null) {
-			System.out.println(cursor.edge + " " + cursor.connection + " "
-					+ cursor.weight);
-			cursor = cursor.nxt;
-		}
-	}
-
-	void printUniono() {
-		Node cursor = head;
-		String S1 = "";
-		String S2 = "";
-		String S = "";
-		try {
-			while (cursor.nxt != null) {
-				Node cursor2 = cursor;
-				S1 = "";
-				S2 = "";
-				while (cursor2 != null & cursor2.edge == cursor.edge) {
-					S1 += cursor2.connection + " ";
-					S2 += cursor2.weight + " ";
-					cursor2 = cursor2.nxt;
-				}
-
-				System.out.println(cursor.edge + " " + S1 + S2);
-				cursor = cursor2;
-			}
-		} catch (NullPointerException e) {
-		}
-	}
-
-	void insertInOrder(String k, int e, int c, int w) {
-		if (head == null) {
-			head = new Node(k, e, c, w);
-		} else {
-			if (head.getValue() > e) {
-				head = new Node(k, e, c, w, head);
-			} else {
-				Node ref = head;
-				Node prev = null;
-				while (ref != null && ref.getValue() <= e) {
-					prev = ref;
-					ref = ref.getNext();
-				}
-				prev.putNext(new Node(k, e, c, w, ref));
-			}
-		}
-
-	}
-
-	class Node {
-		String key;
-		int edge;
-		int connection;
-		int weight;
-		Node nxt;
-
-		Node(String k, int e, int c, int w) {
-			key = k;
-			edge = e;
-			connection = c;
-			weight = w;
-			nxt = null;
-		}
-
-		Node(String k, int e, int c, int w, Node next) {
-			key = k;
-			edge = e;
-			connection = c;
-			weight = w;
-			nxt = next;
-		}
-
-		int getValue() {
-			return edge;
-		}
-
-		Node getNext() {
-			return nxt;
-		}
-
-		void putNext(Node next) {
-			nxt = next;
-		}
-
+	Integer getI() {
+		return i;
 	}
 
 }
@@ -128,7 +48,8 @@ class UnionFind {
 
 		for (int i = 0; i < id.length; i++) {
 			for (int j = 0; j < id.length; j++) {
-				if (i == id[j]) {
+				if (i == id[id[j]]) {
+
 					System.out.print(j + " ");
 					pflag = true;
 				}
@@ -221,17 +142,23 @@ class UnionFind {
 	}
 }
 
+class CustomComparator implements Comparator<Maze> {
+	@Override
+	public int compare(Maze o1, Maze o2) {
+		return o1.getI().compareTo(o2.getI());
+	}
+}
+
 public class AHZOP3 {
 
 	public static void main(String[] args) {
 		Scanner reader = new Scanner(System.in);
 		Random rand = new Random();
-		ArrayList<Integer> edges = new ArrayList<Integer>();
-		ArrayList<String> edgesn = new ArrayList<String>();
+		ArrayList<Maze> edgeList = new ArrayList<Maze>();
 		String req;
 		int SIZE;
 		int x = 0, y = 0;
-		int p, q;
+
 		int w, d, h;
 		int candidate;
 		int direction;
@@ -246,12 +173,11 @@ public class AHZOP3 {
 		SIZE = reader.nextInt();
 		UnionFind uf = new UnionFind(SIZE);
 
-		Union u = new Union();
-
 		while (reader.hasNextLine()) {
 			req = reader.next();
 
 			switch (req) {
+
 			case "u":
 				x = reader.nextInt();
 				y = reader.nextInt();
@@ -266,7 +192,7 @@ public class AHZOP3 {
 				break;
 			case "f":
 				x = reader.nextInt();
-				System.out.println("The root of " + x + " is " + uf.find(x));
+				System.out.println("Root of " + x + " is " + uf.find(x));
 				// System.out.println("total path length:" + UnionFind.pl);
 				break;
 			case "p":
@@ -276,6 +202,7 @@ public class AHZOP3 {
 				uf.printConnectList();
 				break;
 			case "e":
+
 				System.exit(0);
 			case "S":
 				uf.printStats();
@@ -313,30 +240,14 @@ public class AHZOP3 {
 							break;
 						// Connect
 						else {
-							String key = candidate + " " + candidatej;
-							String keyr = candidatej + " " + candidate;
-							if (!edgesn.contains(key)) {
-
+							if (!(mz.find(candidate) == mz.find(candidatej))) {
+								Maze obj = new Maze(candidate, candidatej,
+										weight, "North");
 								mz.union(candidate, candidatej);
-
-								u.insertInOrder(candidate + " " + candidatej,
-										candidate, candidatej, weight);
-
-								edgesn.add(key);
-								edgesn.add(keyr);
-
+								edgeList.add(obj);
 							}
 
 						}
-
-						if (!edges.contains(candidate)) {
-							edges.add(candidate);
-						}
-
-						if (!edges.contains(candidatej)) {
-							edges.add(candidatej);
-						}
-
 						break;
 					case 1:
 
@@ -351,28 +262,14 @@ public class AHZOP3 {
 							break;
 						// Connect
 						else {
-							String key = candidate + " " + candidatej;
-							String keyr = candidatej + " " + candidate;
-							if (!edgesn.contains(key)) {
-
+							if (!(mz.find(candidate) == mz.find(candidatej))) {
+								Maze obj = new Maze(candidate, candidatej,
+										weight, "East");
 								mz.union(candidate, candidatej);
-								u.insertInOrder(candidate + " " + candidatej,
-										candidate, candidatej, weight);
-								edgesn.add(key);
-								edgesn.add(keyr);
-
+								edgeList.add(obj);
 							}
 
 						}
-
-						if (!edges.contains(candidate)) {
-							edges.add(candidate);
-						}
-
-						if (!edges.contains(candidatej)) {
-							edges.add(candidatej);
-						}
-
 						break;
 					case 2:
 
@@ -388,26 +285,13 @@ public class AHZOP3 {
 							break;
 						// Connect
 						else {
-							String key = candidate + " " + candidatej;
-							String keyr = candidatej + " " + candidate;
-							if (!edgesn.contains(key)) {
-
+							if (!(mz.find(candidate) == mz.find(candidatej))) {
+								Maze obj = new Maze(candidate, candidatej,
+										weight, "South");
 								mz.union(candidate, candidatej);
-								u.insertInOrder(candidate + " " + candidatej,
-										candidate, candidatej, weight);
-								edgesn.add(key);
-								edgesn.add(keyr);
-
+								edgeList.add(obj);
 							}
 
-						}
-
-						if (!edges.contains(candidate)) {
-							edges.add(candidate);
-						}
-
-						if (!edges.contains(candidatej)) {
-							edges.add(candidatej);
 						}
 						break;
 
@@ -427,103 +311,90 @@ public class AHZOP3 {
 							break;
 						// Connect
 						else {
-							String key = candidate + " " + candidatej;
-							String keyr = candidatej + " " + candidate;
-							if (!edgesn.contains(key)) {
-
+							if (!(mz.find(candidate) == mz.find(candidatej))) {
+								Maze obj = new Maze(candidate, candidatej,
+										weight, "West");
 								mz.union(candidate, candidatej);
-								u.insertInOrder(candidate + " " + candidatej,
-										candidate, candidatej, weight);
-								edgesn.add(key);
-								edgesn.add(keyr);
-
+								edgeList.add(obj);
 							}
 
 						}
-
-						if (!edges.contains(candidate)) {
-							edges.add(candidate);
-						}
-
-						if (!edges.contains(candidatej)) {
-							edges.add(candidatej);
-						}
 						break;
+
 					case 4:
 
-						// Up increase by the height
-						candidatej = candidate + h;
-						// validate j
-						// Check if j is in the maze
-						if (candidatej > (SIZE - 1))
-							break;
-						// Connect
-						else {
-							String key = candidate + " " + candidatej;
-							String keyr = candidatej + " " + candidate;
-							if (!edgesn.contains(key)) {
-
-								mz.union(candidate, candidatej);
-								u.insertInOrder(candidate + " " + candidatej,
-										candidate, candidatej, weight);
-								edgesn.add(key);
-								edgesn.add(keyr);
-
-							}
-
-						}
-
-						if (!edges.contains(candidate)) {
-							edges.add(candidate);
-						}
-
-						if (!edges.contains(candidatej)) {
-							edges.add(candidatej);
-						}
-						break;
-					case 5:
-
-						// Down decrease by the height
-						candidatej = candidate - h;
+						// Going up example 23 to 14
+						candidatej = candidate - nextLevel;
 						// validate j
 						// Check if j is in the maze
 						if (candidatej < 0)
 							break;
 						// Connect
 						else {
-							String key = candidate + " " + candidatej;
-							String keyr = candidatej + " " + candidate;
-							if (!edgesn.contains(key)) {
-
+							if (!(mz.find(candidate) == mz.find(candidatej))) {
+								Maze obj = new Maze(candidate, candidatej,
+										weight, "Up");
 								mz.union(candidate, candidatej);
-								u.insertInOrder(candidate + " " + candidatej,
-										candidate, candidatej, weight);
-								edgesn.add(key);
-								edgesn.add(keyr);
-
+								edgeList.add(obj);
 							}
 
 						}
+						break;
 
-						if (!edges.contains(candidate)) {
-							edges.add(candidate);
-						}
+					case 5:
 
-						if (!edges.contains(candidatej)) {
-							edges.add(candidatej);
+						// Going Down example 0 to 9
+						candidatej = candidate + nextLevel;
+						// validate j
+						// Check if j is in the maze
+						if (candidatej > (SIZE - 1))
+							break;
+						// Connect
+						else {
+							if (!(mz.find(candidate) == mz.find(candidatej))) {
+								Maze obj = new Maze(candidate, candidatej,
+										weight, "Down");
+								mz.union(candidate, candidatej);
+								edgeList.add(obj);
+							}
+
 						}
 						break;
+
 					default:
 						break;
 
 					}
 
 				}
-				u.printUniono();
-				/*
-				 * edgesn.remove("One"); Collections.sort(edgesn);
-				 */
-				// for (String pr: edgesn) { System.out.println(pr); }
+
+				Collections.sort(edgeList, new CustomComparator());
+				int current = 0;
+				int previous = 0;
+				int cnter = 0;
+				String S1 = "";
+				String S2 = "";
+
+				for (Maze obj : edgeList) {
+
+					current = obj.i;
+
+					if (current != previous && cnter > 0) {
+						System.out.println(previous + " " + S1 + S2);
+						S1 = "";
+						S2 = "";
+					}
+
+					S1 += obj.j + " ";
+					S2 += obj.weight + " ";
+
+					previous = current;
+					cnter++;
+
+				}
+
+				// Print Last Row
+				System.out.println(previous + " " + S1 + S2);
 
 				while (reader.hasNextLine()) {
 					req = reader.next();
@@ -536,11 +407,16 @@ public class AHZOP3 {
 						mz.printConnectList();
 						break;
 					case "e":
+
 						System.exit(0);
 					case "S":
 						mz.printStats();
 
 						break;
+					case "f":
+						x = reader.nextInt();
+						System.out.println("The root of " + x + " is "
+								+ mz.find(x));
 					}
 					reader.nextLine();
 				}
