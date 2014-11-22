@@ -372,6 +372,7 @@ public class AHZOP3 {
 				int current = 0;
 				int previous = 0;
 				int cnter = 0;
+				
 				String S1 = "";
 				String S2 = "";
 
@@ -389,6 +390,7 @@ public class AHZOP3 {
 					S2 += obj.weight + " ";
 
 					previous = current;
+					
 					cnter++;
 
 				}
