@@ -10,7 +10,7 @@ import java.util.Stack;
 import java.util.PriorityQueue;
 
 /**
- * 
+ * Class that holds the edges
  * @author ahmedzouari
  *
  */
