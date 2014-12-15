@@ -263,7 +263,7 @@ public class AHZOP4 {
 
 				System.out.println(DG.distTo(cnt));
 
-			}
+			} else System.out.println("No path from " +  sVertex + " to "  + cnt);
 
 		}
 		System.out.println();
