@@ -420,7 +420,7 @@ public class AHZOP1 {
 			}
 
 			memory.printStats("FF");
-			System.out.println(placements);
+			//System.out.println(placements);
 
 			// Handle Next Fit
 			Memory NFmemory = new Memory(memorySize);
